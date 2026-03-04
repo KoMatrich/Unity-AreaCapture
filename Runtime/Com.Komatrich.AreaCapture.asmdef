@@ -1,0 +1,14 @@
+{
+    "name": "Com.Komatrich.AreaCapture",
+    "rootNamespace": "AreaCapture",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
