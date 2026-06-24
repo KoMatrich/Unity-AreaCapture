@@ -19,7 +19,10 @@ namespace AreaCapture
     public class CaptureZone : MonoBehaviour
     {
         [SerializeField]
-        private Color gizmoColor = new Color(0, 1, 0, 0.3f);
+        private Color gizmoColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+
+        [SerializeField]
+        private Color capturedFaceColor = new Color(0f, 1f, 0f, 0.5f);
 
         [SerializeField]
         private bool showGizmo = true;
@@ -99,14 +102,40 @@ namespace AreaCapture
                     CaptureAxis.PositiveX, CaptureAxis.NegativeX,
                     CaptureAxis.PositiveY, CaptureAxis.NegativeY,
                     CaptureAxis.PositiveZ, CaptureAxis.NegativeZ })
+                {
+                    DrawCapturedFace(col.center, col.size, ax);
                     DrawArrowForAxis(col.center, col.size, ax);
+                }
             }
             else
             {
+                DrawCapturedFace(col.center, col.size, captureAxis);
                 DrawArrowForAxis(col.center, col.size, captureAxis);
             }
 
             Gizmos.matrix = oldMatrix;
+        }
+
+        private void DrawCapturedFace(Vector3 center, Vector3 size, CaptureAxis axis)
+        {
+            const float thickness = 0.02f;
+            Vector3 direction;
+            Vector3 faceSize;
+
+            switch (axis)
+            {
+                case CaptureAxis.PositiveX: direction = Vector3.right;   faceSize = new Vector3(thickness, size.y, size.z); break;
+                case CaptureAxis.NegativeX: direction = Vector3.left;    faceSize = new Vector3(thickness, size.y, size.z); break;
+                case CaptureAxis.PositiveY: direction = Vector3.up;      faceSize = new Vector3(size.x, thickness, size.z); break;
+                case CaptureAxis.NegativeY: direction = Vector3.down;    faceSize = new Vector3(size.x, thickness, size.z); break;
+                case CaptureAxis.PositiveZ: direction = Vector3.forward; faceSize = new Vector3(size.x, size.y, thickness); break;
+                default:                    direction = Vector3.back;    faceSize = new Vector3(size.x, size.y, thickness); break;
+            }
+
+            Vector3 faceCenter = center + Vector3.Scale(direction, size * 0.5f);
+
+            Gizmos.color = capturedFaceColor;
+            Gizmos.DrawCube(faceCenter, faceSize);
         }
 
         private void DrawArrowForAxis(Vector3 center, Vector3 size, CaptureAxis axis)
