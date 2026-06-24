@@ -10,14 +10,6 @@ namespace AreaCapture.Editor
     /// </summary>
     public class AreaCaptureWindow : EditorWindow
     {
-        private const string PREF_KEY_PPU = "AreaCapture_PPU";
-        private const string PREF_KEY_OUTDIR = "AreaCapture_OutDir";
-        private const string PREF_KEY_META = "AreaCapture_Meta";
-        private const string PREF_KEY_CLEARFLAG = "AreaCapture_ClearFlag";
-        private const string PREF_KEY_BGCOLOR = "AreaCapture_BGColor";
-        private const string PREF_KEY_CULLMASK = "AreaCapture_CullMask";
-        private const string PREF_KEY_AUTOIMPORT = "AreaCapture_AutoImport";
-
         private AreaCaptureExporter.ExportSettings settings;
 
         [MenuItem("Window/Area Capture")]
@@ -28,32 +20,20 @@ namespace AreaCapture.Editor
 
         private void OnEnable()
         {
-            settings = new AreaCaptureExporter.ExportSettings
-            {
-                PixelPerUnit = EditorPrefs.GetInt(PREF_KEY_PPU, 100),
-                OutputDirectory = EditorPrefs.GetString(PREF_KEY_OUTDIR, "Assets/Exports/AreaCaptures"),
-                MetadataFilename = EditorPrefs.GetString(PREF_KEY_META, "capture_metadata.json"),
-                ClearFlags = (CameraClearFlags)EditorPrefs.GetInt(PREF_KEY_CLEARFLAG, (int)CameraClearFlags.SolidColor),
-                CullingMask = EditorPrefs.GetInt(PREF_KEY_CULLMASK, -1),
-                AutoImportAssets = EditorPrefs.GetBool(PREF_KEY_AUTOIMPORT, false)
-            };
-            
-            string colorHtml = EditorPrefs.GetString(PREF_KEY_BGCOLOR, "#00000000");
-            if (ColorUtility.TryParseHtmlString(colorHtml, out Color loadedColor))
-                settings.BackgroundColor = loadedColor;
+            settings = AreaCaptureExporter.LoadSettingsFromPrefs();
         }
 
         private void OnDisable()
         {
             if (settings != null)
             {
-                EditorPrefs.SetInt(PREF_KEY_PPU, settings.PixelPerUnit);
-                EditorPrefs.SetString(PREF_KEY_OUTDIR, settings.OutputDirectory);
-                EditorPrefs.SetString(PREF_KEY_META, settings.MetadataFilename);
-                EditorPrefs.SetInt(PREF_KEY_CLEARFLAG, (int)settings.ClearFlags);
-                EditorPrefs.SetInt(PREF_KEY_CULLMASK, settings.CullingMask);
-                EditorPrefs.SetBool(PREF_KEY_AUTOIMPORT, settings.AutoImportAssets);
-                EditorPrefs.SetString(PREF_KEY_BGCOLOR, "#" + ColorUtility.ToHtmlStringRGBA(settings.BackgroundColor));
+                EditorPrefs.SetInt(AreaCaptureExporter.PREF_KEY_PPU, settings.PixelPerUnit);
+                EditorPrefs.SetString(AreaCaptureExporter.PREF_KEY_OUTDIR, settings.OutputDirectory);
+                EditorPrefs.SetString(AreaCaptureExporter.PREF_KEY_META, settings.MetadataFilename);
+                EditorPrefs.SetInt(AreaCaptureExporter.PREF_KEY_CLEARFLAG, (int)settings.ClearFlags);
+                EditorPrefs.SetInt(AreaCaptureExporter.PREF_KEY_CULLMASK, settings.CullingMask);
+                EditorPrefs.SetBool(AreaCaptureExporter.PREF_KEY_AUTOIMPORT, settings.AutoImportAssets);
+                EditorPrefs.SetString(AreaCaptureExporter.PREF_KEY_BGCOLOR, "#" + ColorUtility.ToHtmlStringRGBA(settings.BackgroundColor));
             }
         }
 
@@ -154,6 +134,8 @@ namespace AreaCapture.Editor
                     if (zone.UseStrictClipping) info += " | [Clipped]";
                     if (!string.IsNullOrEmpty(zone.FilenameOverride)) info += $" | Name: {zone.FilenameOverride}";
                     EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
+                    if (Quaternion.Angle(zone.transform.rotation, Quaternion.identity) > 0.01f)
+                        EditorGUILayout.HelpBox("Rotated — unsupported", MessageType.Warning);
                     EditorGUILayout.EndVertical();
 
                     if (GUILayout.Button("Show", GUILayout.Width(60)))

@@ -13,6 +13,30 @@ namespace AreaCapture.Editor
     /// </summary>
     public class AreaCaptureExporter
     {
+        internal const string PREF_KEY_PPU        = "AreaCapture_PPU";
+        internal const string PREF_KEY_OUTDIR     = "AreaCapture_OutDir";
+        internal const string PREF_KEY_META       = "AreaCapture_Meta";
+        internal const string PREF_KEY_CLEARFLAG  = "AreaCapture_ClearFlag";
+        internal const string PREF_KEY_BGCOLOR    = "AreaCapture_BGColor";
+        internal const string PREF_KEY_CULLMASK   = "AreaCapture_CullMask";
+        internal const string PREF_KEY_AUTOIMPORT = "AreaCapture_AutoImport";
+
+        public static ExportSettings LoadSettingsFromPrefs()
+        {
+            var s = new ExportSettings
+            {
+                PixelPerUnit     = EditorPrefs.GetInt(PREF_KEY_PPU, 100),
+                OutputDirectory  = EditorPrefs.GetString(PREF_KEY_OUTDIR, "Assets/Exports/AreaCaptures"),
+                MetadataFilename = EditorPrefs.GetString(PREF_KEY_META, "capture_metadata.json"),
+                ClearFlags       = (CameraClearFlags)EditorPrefs.GetInt(PREF_KEY_CLEARFLAG, (int)CameraClearFlags.SolidColor),
+                CullingMask      = EditorPrefs.GetInt(PREF_KEY_CULLMASK, -1),
+                AutoImportAssets = EditorPrefs.GetBool(PREF_KEY_AUTOIMPORT, false),
+            };
+            string html = EditorPrefs.GetString(PREF_KEY_BGCOLOR, "#00000000");
+            if (ColorUtility.TryParseHtmlString(html, out Color c)) s.BackgroundColor = c;
+            return s;
+        }
+
         public class ExportSettings
         {
             public int PixelPerUnit;
