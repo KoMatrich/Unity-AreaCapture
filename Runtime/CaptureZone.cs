@@ -1,4 +1,7 @@
 using UnityEngine;
+#if NAUGHTY_ATTRIBUTES
+using NaughtyAttributes;
+#endif
 
 namespace AreaCapture
 {
@@ -12,27 +15,43 @@ namespace AreaCapture
         NegativeZ  // From -Z looking towards +Z
     }
 
-    /// <summary>
-    /// Component that marks a 3D area for capture. Attach to a GameObject with a BoxCollider.
-    /// </summary>
     [RequireComponent(typeof(BoxCollider))]
     public class CaptureZone : MonoBehaviour
     {
+        [Tooltip("Color of the zone bounding box drawn in the Scene view.")]
         [SerializeField]
-        private Color gizmoColor = new Color(0, 1, 0, 0.3f);
+        private Color gizmoColor = new Color(0.1f, 0.1f, 0.1f, 0.2f);
 
+        [Tooltip("Color of the highlighted face showing which side will be captured.")]
+        [SerializeField]
+        private Color capturedFaceColor = new Color(0f, 1f, 0f, 0.5f);
+
+        [Tooltip("Show or hide this zone's gizmo in the Scene view.")]
         [SerializeField]
         private bool showGizmo = true;
 
-        [SerializeField]
-        private CaptureAxis captureAxis = CaptureAxis.NegativeZ;
-
+        [Tooltip("Capture all 6 faces (±X, ±Y, ±Z). When enabled, Capture Axis and Filename Override are ignored.")]
         [SerializeField]
         private bool exportCubemap = false;
 
+#if NAUGHTY_ATTRIBUTES
+        [HideIf(nameof(exportCubemap))]
+#endif
+        [Tooltip("The face of the bounding box the orthographic camera looks inward from to produce the captured image.")]
+        [SerializeField]
+        private CaptureAxis captureAxis = CaptureAxis.NegativeZ;
+
+#if NAUGHTY_ATTRIBUTES
+        [InfoBox("Enable 'Export Cubemap' to capture all 6 faces. In cubemap mode, Capture Axis and Filename Override are ignored.", EInfoBoxType.Normal)]
+#endif
+        [Tooltip("Clamp camera near/far planes to the exact depth of the zone, so nothing outside its bounds renders. Disable for a looser clip range (0.3–1000 units).")]
         [SerializeField]
         private bool useStrictClipping = true;
 
+#if NAUGHTY_ATTRIBUTES
+        [HideIf(nameof(exportCubemap))]
+#endif
+        [Tooltip("Custom filename for the exported PNG (without extension). If empty, defaults to 'CaptureZone_{GameObjectName}.png'.")]
         [SerializeField]
         private string filenameOverride = "";
 
@@ -71,61 +90,92 @@ namespace AreaCapture
 
             Color color = gizmoColor;
             if (selected) color.a = Mathf.Min(1f, color.a * 2f);
-            
+
             Gizmos.color = color;
-            
-            // Use Matrix to support rotation and scaling correctly
+
             Matrix4x4 oldMatrix = Gizmos.matrix;
             Gizmos.matrix = transform.localToWorldMatrix;
 
-            // Draw the solid volume
             Gizmos.DrawCube(col.center, col.size);
 
-            // Draw the wireframe with higher opacity
             Color wireColor = color;
             wireColor.a = selected ? 1f : 0.8f;
             Gizmos.color = wireColor;
             Gizmos.DrawWireCube(col.center, col.size);
 
-            // Draw an arrow indicating capture direction
-            DrawDirectionArrow(col.center, col.size);
+            if (exportCubemap)
+            {
+                foreach (CaptureAxis ax in new[] {
+                    CaptureAxis.PositiveX, CaptureAxis.NegativeX,
+                    CaptureAxis.PositiveY, CaptureAxis.NegativeY,
+                    CaptureAxis.PositiveZ, CaptureAxis.NegativeZ })
+                {
+                    DrawCapturedFace(col.center, col.size, ax);
+                    DrawArrowForAxis(col.center, col.size, ax);
+                }
+            }
+            else
+            {
+                DrawCapturedFace(col.center, col.size, captureAxis);
+                DrawArrowForAxis(col.center, col.size, captureAxis);
+            }
 
             Gizmos.matrix = oldMatrix;
         }
 
-        private void DrawDirectionArrow(Vector3 center, Vector3 size)
+        private void DrawCapturedFace(Vector3 center, Vector3 size, CaptureAxis axis)
+        {
+            const float thickness = 0.02f;
+            Vector3 direction;
+            Vector3 faceSize;
+
+            switch (axis)
+            {
+                case CaptureAxis.PositiveX: direction = Vector3.right;   faceSize = new Vector3(thickness, size.y, size.z); break;
+                case CaptureAxis.NegativeX: direction = Vector3.left;    faceSize = new Vector3(thickness, size.y, size.z); break;
+                case CaptureAxis.PositiveY: direction = Vector3.up;      faceSize = new Vector3(size.x, thickness, size.z); break;
+                case CaptureAxis.NegativeY: direction = Vector3.down;    faceSize = new Vector3(size.x, thickness, size.z); break;
+                case CaptureAxis.PositiveZ: direction = Vector3.forward; faceSize = new Vector3(size.x, size.y, thickness); break;
+                default:                    direction = Vector3.back;    faceSize = new Vector3(size.x, size.y, thickness); break;
+            }
+
+            Vector3 faceCenter = center + Vector3.Scale(direction, size * 0.5f);
+
+            Gizmos.color = capturedFaceColor;
+            Gizmos.DrawCube(faceCenter, faceSize);
+        }
+
+        private void DrawArrowForAxis(Vector3 center, Vector3 size, CaptureAxis axis)
         {
             Vector3 direction = Vector3.forward;
             float halfSize = 0f;
 
-            switch (captureAxis)
+            switch (axis)
             {
-                case CaptureAxis.PositiveX: direction = Vector3.right; halfSize = size.x * 0.5f; break;
-                case CaptureAxis.NegativeX: direction = Vector3.left; halfSize = size.x * 0.5f; break;
-                case CaptureAxis.PositiveY: direction = Vector3.up; halfSize = size.y * 0.5f; break;
-                case CaptureAxis.NegativeY: direction = Vector3.down; halfSize = size.y * 0.5f; break;
+                case CaptureAxis.PositiveX: direction = Vector3.right;   halfSize = size.x * 0.5f; break;
+                case CaptureAxis.NegativeX: direction = Vector3.left;    halfSize = size.x * 0.5f; break;
+                case CaptureAxis.PositiveY: direction = Vector3.up;      halfSize = size.y * 0.5f; break;
+                case CaptureAxis.NegativeY: direction = Vector3.down;    halfSize = size.y * 0.5f; break;
                 case CaptureAxis.PositiveZ: direction = Vector3.forward; halfSize = size.z * 0.5f; break;
-                case CaptureAxis.NegativeZ: direction = Vector3.back; halfSize = size.z * 0.5f; break;
+                case CaptureAxis.NegativeZ: direction = Vector3.back;    halfSize = size.z * 0.5f; break;
             }
 
-            // Position arrow on the outside of the face, pointing INWARDS
-            float padding = 0.2f;
+            float padding     = 0.2f;
             float arrowLength = 1f;
-            float arrowWidth = 0.05f;
-            float headSize = 0.2f;
-            
-            Vector3 start = center + direction * (halfSize + padding + arrowLength);
-            Vector3 end = center + direction * (halfSize + padding);
-            
-            Gizmos.DrawLine(start, end);
-            
-            Vector3 up = (direction == Vector3.up || direction == Vector3.down) ? Vector3.forward : Vector3.up;
-            Vector3 side = Vector3.Cross(direction, up).normalized;
-            up = Vector3.Cross(side, direction).normalized;
+            float arrowWidth  = 0.05f;
+            float headSize    = 0.2f;
 
-            // Draw arrow head
-            Gizmos.DrawLine(end, end + (direction * headSize) + (up * arrowWidth));
-            Gizmos.DrawLine(end, end + (direction * headSize) - (up * arrowWidth));
+            Vector3 start = center + direction * (halfSize + padding + arrowLength);
+            Vector3 end   = center + direction * (halfSize + padding);
+
+            Gizmos.DrawLine(start, end);
+
+            Vector3 up   = (direction == Vector3.up || direction == Vector3.down) ? Vector3.forward : Vector3.up;
+            Vector3 side = Vector3.Cross(direction, up).normalized;
+            up           = Vector3.Cross(side, direction).normalized;
+
+            Gizmos.DrawLine(end, end + (direction * headSize) + (up   * arrowWidth));
+            Gizmos.DrawLine(end, end + (direction * headSize) - (up   * arrowWidth));
             Gizmos.DrawLine(end, end + (direction * headSize) + (side * arrowWidth));
             Gizmos.DrawLine(end, end + (direction * headSize) - (side * arrowWidth));
         }

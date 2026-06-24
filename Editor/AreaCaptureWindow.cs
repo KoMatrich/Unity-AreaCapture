@@ -67,27 +67,27 @@ namespace AreaCapture.Editor
             EditorGUILayout.Space();
 
             GUILayout.Label("Capture Settings", EditorStyles.boldLabel);
-            settings.PixelPerUnit = EditorGUILayout.IntField("Pixel Per Unit", settings.PixelPerUnit);
+            settings.PixelPerUnit = EditorGUILayout.IntField(new GUIContent("Pixel Per Unit", "Number of pixels per world unit. A 1-unit zone at 100 PPU produces a 100×100 px image. Higher values = sharper output and larger files."), settings.PixelPerUnit);
 
             EditorGUILayout.Space();
 
             GUILayout.Label("Rendering Options", EditorStyles.boldLabel);
-            settings.ClearFlags = (CameraClearFlags)EditorGUILayout.EnumPopup("Clear Flags", settings.ClearFlags);
+            settings.ClearFlags = (CameraClearFlags)EditorGUILayout.EnumPopup(new GUIContent("Clear Flags", "How the capture camera clears the background before rendering. 'Solid Color' fills with the Background Color. 'Depth Only'/'Don't Clear' may composite existing render artifacts."), settings.ClearFlags);
             
             if (settings.ClearFlags == CameraClearFlags.SolidColor)
             {
-                settings.BackgroundColor = EditorGUILayout.ColorField("Background Color", settings.BackgroundColor);
+                settings.BackgroundColor = EditorGUILayout.ColorField(new GUIContent("Background Color", "The solid background color applied when Clear Flags is set to 'Solid Color'."), settings.BackgroundColor);
             }
 
-            settings.CullingMask = EditorGUILayout.MaskField("Culling Mask", 
-                InternalEditorUtility.LayerMaskToConcatenatedLayersMask(new LayerMask { value = settings.CullingMask }), 
+            settings.CullingMask = EditorGUILayout.MaskField(new GUIContent("Culling Mask", "Which scene layers the capture camera renders. Toggle layers to include or exclude objects from captured images."),
+                InternalEditorUtility.LayerMaskToConcatenatedLayersMask(new LayerMask { value = settings.CullingMask }),
                 InternalEditorUtility.layers);
             settings.CullingMask = InternalEditorUtility.ConcatenatedLayersMaskToLayerMask(settings.CullingMask).value;
 
             EditorGUILayout.Space();
 
             GUILayout.Label("Export Settings", EditorStyles.boldLabel);
-            settings.OutputDirectory = EditorGUILayout.TextField("Output Directory", settings.OutputDirectory);
+            settings.OutputDirectory = EditorGUILayout.TextField(new GUIContent("Output Directory", "Folder where exported PNG files are saved. Must be inside the Assets folder for Auto Import to work correctly."), settings.OutputDirectory);
             if (GUILayout.Button("Browse..."))
             {
                 string selectedPath = EditorUtility.OpenFolderPanel("Select Export Directory", "Assets", "");
@@ -101,8 +101,8 @@ namespace AreaCapture.Editor
                 }
             }
 
-            settings.MetadataFilename = EditorGUILayout.TextField("Metadata Filename", settings.MetadataFilename);
-            settings.AutoImportAssets = EditorGUILayout.Toggle("Auto Import Assets", settings.AutoImportAssets);
+            settings.MetadataFilename = EditorGUILayout.TextField(new GUIContent("Metadata Filename", "Name of the JSON file written alongside images. Contains world position, size, and rotation for each captured zone."), settings.MetadataFilename);
+            settings.AutoImportAssets = EditorGUILayout.Toggle(new GUIContent("Auto Import Assets", "Automatically calls AssetDatabase.Refresh() after export so Unity recognizes the new PNG files without a manual reimport."), settings.AutoImportAssets);
 
             EditorGUILayout.Space();
 

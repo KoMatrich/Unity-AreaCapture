@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using AreaCapture.Runtime;
 
-#if UNITY_EDITOR
 using UnityEditor;
-#endif
 
 namespace AreaCapture.Editor
 {
