@@ -18,33 +18,40 @@ namespace AreaCapture
     [RequireComponent(typeof(BoxCollider))]
     public class CaptureZone : MonoBehaviour
     {
+        [Tooltip("Color of the zone bounding box drawn in the Scene view.")]
         [SerializeField]
-        private Color gizmoColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
+        private Color gizmoColor = new Color(0.1f, 0.1f, 0.1f, 0.2f);
 
+        [Tooltip("Color of the highlighted face showing which side will be captured.")]
         [SerializeField]
         private Color capturedFaceColor = new Color(0f, 1f, 0f, 0.5f);
 
+        [Tooltip("Show or hide this zone's gizmo in the Scene view.")]
         [SerializeField]
         private bool showGizmo = true;
 
+        [Tooltip("Capture all 6 faces (±X, ±Y, ±Z). When enabled, Capture Axis and Filename Override are ignored.")]
         [SerializeField]
         private bool exportCubemap = false;
 
 #if NAUGHTY_ATTRIBUTES
         [HideIf(nameof(exportCubemap))]
 #endif
+        [Tooltip("The face of the bounding box the orthographic camera looks inward from to produce the captured image.")]
         [SerializeField]
         private CaptureAxis captureAxis = CaptureAxis.NegativeZ;
 
 #if NAUGHTY_ATTRIBUTES
         [InfoBox("Enable 'Export Cubemap' to capture all 6 faces. In cubemap mode, Capture Axis and Filename Override are ignored.", EInfoBoxType.Normal)]
 #endif
+        [Tooltip("Clamp camera near/far planes to the exact depth of the zone, so nothing outside its bounds renders. Disable for a looser clip range (0.3–1000 units).")]
         [SerializeField]
         private bool useStrictClipping = true;
 
 #if NAUGHTY_ATTRIBUTES
         [HideIf(nameof(exportCubemap))]
 #endif
+        [Tooltip("Custom filename for the exported PNG (without extension). If empty, defaults to 'CaptureZone_{GameObjectName}.png'.")]
         [SerializeField]
         private string filenameOverride = "";
 
