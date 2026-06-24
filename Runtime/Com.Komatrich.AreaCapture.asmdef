@@ -1,7 +1,7 @@
 {
     "name": "Com.Komatrich.AreaCapture",
     "rootNamespace": "AreaCapture",
-    "references": [],
+    "references": ["NaughtyAttributes.Core"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -9,6 +9,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.dbrizov.naughtyattributes",
+            "expression": "",
+            "define": "NAUGHTY_ATTRIBUTES"
+        }
+    ],
     "noEngineReferences": false
 }
