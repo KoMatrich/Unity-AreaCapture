@@ -51,14 +51,12 @@ Go to **Window > Area Capture** in the Unity Editor menu.
 **Example metadata.json:**
 ```json
 {
-	"CaptureArea": {
+	"CaptureArea_Top": {
 		"filename": "CaptureZone_CaptureArea.png",
+		"cubemap_face": "Top",
 		"global_position": { "x": 7.73, "y": 2.40, "z": 0.94 },
-		"global_euler": { "x": 0.00, "y": 0.00, "z": 0.00 },
 		"global_quaternion": { "x": 0.0000, "y": 0.0000, "z": 0.0000, "w": 1.0000 },
-		"size": { "x": 26.86, "y": 9.86, "z": 2.88 },
-		"is_cubemap": false,
-		"cubemap_face": ""
+		"size": { "x": 26.86, "y": 9.86, "z": 2.88 }
 	}
 }
 ```

@@ -11,20 +11,16 @@ namespace AreaCapture
     {
         public string filename;
         public Vector3 globalPosition;
-        public Vector3 globalEulerAngles;
         public Quaternion globalQuaternion;
         public Vector3 size;
-        public bool isCubemap;
         public string cubemapFace;
 
-        public AreaMetadata(string filename, Vector3 globalPosition, Vector3 globalEulerAngles, Quaternion globalQuaternion, Vector3 size, bool isCubemap = false, string cubemapFace = "")
+        public AreaMetadata(string filename, Vector3 globalPosition, Quaternion globalQuaternion, Vector3 size, string cubemapFace = "Top")
         {
             this.filename = filename;
             this.globalPosition = globalPosition;
-            this.globalEulerAngles = globalEulerAngles;
             this.globalQuaternion = globalQuaternion;
             this.size = size;
-            this.isCubemap = isCubemap;
             this.cubemapFace = cubemapFace;
         }
     }
@@ -37,9 +33,9 @@ namespace AreaCapture
     {
         public Dictionary<string, AreaMetadata> areas = new Dictionary<string, AreaMetadata>();
 
-        public void AddArea(string name, string filename, Vector3 globalPosition, Vector3 globalEulerAngles, Quaternion globalQuaternion, Vector3 size, bool isCubemap = false, string cubemapFace = "")
+        public void AddArea(string name, string filename, Vector3 globalPosition, Quaternion globalQuaternion, Vector3 size, string cubemapFace = "Top")
         {
-            areas[name] = new AreaMetadata(filename, globalPosition, globalEulerAngles, globalQuaternion, size, isCubemap, cubemapFace);
+            areas[name] = new AreaMetadata(filename, globalPosition, globalQuaternion, size, cubemapFace);
         }
 
         public void Clear()

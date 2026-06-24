@@ -128,7 +128,7 @@ namespace AreaCapture.Editor
                 string processingName = GetZoneName(zone, currentIndex);
                 
                 CaptureAxis currentAxis = zone.ExportCubemap ? cubemapAxes[faceIndex] : zone.Axis;
-                string suffix = zone.ExportCubemap ? cubemapSuffixes[faceIndex] : "";
+                string suffix = zone.ExportCubemap ? cubemapSuffixes[faceIndex] : "_Top";
 
                 bool canceled = EditorUtility.DisplayCancelableProgressBar(
                     "Exporting Area Captures", 
@@ -184,12 +184,11 @@ namespace AreaCapture.Editor
                 // Record metadata
                 BoxCollider col = zone.GetComponent<BoxCollider>();
                 Vector3 globalPos = col != null ? col.bounds.center : zone.GetGlobalPosition();
-                Vector3 globalEuler = zone.transform.eulerAngles;
                 Quaternion globalQuat = zone.transform.rotation;
                 Vector3 size = col != null ? col.bounds.size : Vector3.zero;
 
-                string faceName = zone.ExportCubemap ? cubemapSuffixes[faceIndex].TrimStart('_') : "";
-                metadata.AddArea(processingName + suffix, Path.GetFileName(fileName), globalPos, globalEuler, globalQuat, size, zone.ExportCubemap, faceName);
+                string faceName = zone.ExportCubemap ? cubemapSuffixes[faceIndex].TrimStart('_') : "Top";
+                metadata.AddArea(processingName + suffix, Path.GetFileName(fileName), globalPos, globalQuat, size, faceName);
 
                 Debug.Log($"Captured and saved: {fileName}");
 
@@ -256,12 +255,10 @@ namespace AreaCapture.Editor
                 
                 lines.Add($"\t\"{item.Key}\": {{");
                 lines.Add($"\t\t\"filename\": \"{area.filename}\",");
+                lines.Add($"\t\t\"cubemap_face\": \"{area.cubemapFace}\",");
                 lines.Add($"\t\t\"global_position\": {{ \"x\": {area.globalPosition.x:F2}, \"y\": {area.globalPosition.y:F2}, \"z\": {area.globalPosition.z:F2} }},");
-                lines.Add($"\t\t\"global_euler\": {{ \"x\": {area.globalEulerAngles.x:F2}, \"y\": {area.globalEulerAngles.y:F2}, \"z\": {area.globalEulerAngles.z:F2} }},");
                 lines.Add($"\t\t\"global_quaternion\": {{ \"x\": {area.globalQuaternion.x:F4}, \"y\": {area.globalQuaternion.y:F4}, \"z\": {area.globalQuaternion.z:F4}, \"w\": {area.globalQuaternion.w:F4} }},");
-                lines.Add($"\t\t\"size\": {{ \"x\": {area.size.x:F2}, \"y\": {area.size.y:F2}, \"z\": {area.size.z:F2} }},");
-                lines.Add($"\t\t\"is_cubemap\": {area.isCubemap.ToString().ToLower()},");
-                lines.Add($"\t\t\"cubemap_face\": \"{area.cubemapFace}\"");
+                lines.Add($"\t\t\"size\": {{ \"x\": {area.size.x:F2}, \"y\": {area.size.y:F2}, \"z\": {area.size.z:F2} }}");
                 lines.Add(i < items.Count - 1 ? "\t}," : "\t}");
             }
             
