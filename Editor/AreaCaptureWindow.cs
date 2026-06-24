@@ -156,7 +156,7 @@ namespace AreaCapture.Editor
                     EditorGUILayout.LabelField(info, EditorStyles.miniLabel);
                     EditorGUILayout.EndVertical();
 
-                    if (GUILayout.Button("Select", GUILayout.Width(60)))
+                    if (GUILayout.Button("Show", GUILayout.Width(60)))
                     {
                         Selection.activeGameObject = zone.gameObject;
                         EditorGUIUtility.PingObject(zone.gameObject);
