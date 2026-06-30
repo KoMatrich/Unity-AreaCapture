@@ -32,7 +32,6 @@ namespace AreaCapture.Editor
                 EditorPrefs.SetString(AreaCaptureExporter.PREF_KEY_META, settings.MetadataFilename);
                 EditorPrefs.SetInt(AreaCaptureExporter.PREF_KEY_CLEARFLAG, (int)settings.ClearFlags);
                 EditorPrefs.SetInt(AreaCaptureExporter.PREF_KEY_CULLMASK, settings.CullingMask);
-                EditorPrefs.SetBool(AreaCaptureExporter.PREF_KEY_AUTOIMPORT, settings.AutoImportAssets);
                 EditorPrefs.SetString(AreaCaptureExporter.PREF_KEY_BGCOLOR, "#" + ColorUtility.ToHtmlStringRGBA(settings.BackgroundColor));
             }
         }
@@ -67,7 +66,7 @@ namespace AreaCapture.Editor
             EditorGUILayout.Space();
 
             GUILayout.Label("Export Settings", EditorStyles.boldLabel);
-            settings.OutputDirectory = EditorGUILayout.TextField(new GUIContent("Output Directory", "Folder where exported PNG files are saved. Must be inside the Assets folder for Auto Import to work correctly."), settings.OutputDirectory);
+            settings.OutputDirectory = EditorGUILayout.TextField(new GUIContent("Output Directory", "Folder where exported PNG files are saved."), settings.OutputDirectory);
             if (GUILayout.Button("Browse..."))
             {
                 string selectedPath = EditorUtility.OpenFolderPanel("Select Export Directory", "Assets", "");
@@ -82,7 +81,6 @@ namespace AreaCapture.Editor
             }
 
             settings.MetadataFilename = EditorGUILayout.TextField(new GUIContent("Metadata Filename", "Name of the JSON file written alongside images. Contains world position, size, and rotation for each captured zone."), settings.MetadataFilename);
-            settings.AutoImportAssets = EditorGUILayout.Toggle(new GUIContent("Auto Import Assets", "Automatically calls AssetDatabase.Refresh() after export so Unity recognizes the new PNG files without a manual reimport."), settings.AutoImportAssets);
 
             EditorGUILayout.Space();
 

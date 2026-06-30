@@ -19,8 +19,6 @@ namespace AreaCapture.Editor
         internal const string PREF_KEY_CLEARFLAG  = "AreaCapture_ClearFlag";
         internal const string PREF_KEY_BGCOLOR    = "AreaCapture_BGColor";
         internal const string PREF_KEY_CULLMASK   = "AreaCapture_CullMask";
-        internal const string PREF_KEY_AUTOIMPORT = "AreaCapture_AutoImport";
-
         public static ExportSettings LoadSettingsFromPrefs()
         {
             var s = new ExportSettings
@@ -30,7 +28,6 @@ namespace AreaCapture.Editor
                 MetadataFilename = EditorPrefs.GetString(PREF_KEY_META, "capture_metadata.json"),
                 ClearFlags       = (CameraClearFlags)EditorPrefs.GetInt(PREF_KEY_CLEARFLAG, (int)CameraClearFlags.SolidColor),
                 CullingMask      = EditorPrefs.GetInt(PREF_KEY_CULLMASK, -1),
-                AutoImportAssets = EditorPrefs.GetBool(PREF_KEY_AUTOIMPORT, false),
             };
             string html = EditorPrefs.GetString(PREF_KEY_BGCOLOR, "#00000000");
             if (ColorUtility.TryParseHtmlString(html, out Color c)) s.BackgroundColor = c;
@@ -47,7 +44,6 @@ namespace AreaCapture.Editor
             public CameraClearFlags ClearFlags = CameraClearFlags.SolidColor;
             public Color BackgroundColor = new Color(0, 0, 0, 0); // Transparent black by default
             public int CullingMask = -1; // Everything
-            public bool AutoImportAssets = false;
         }
 
         /// <summary>
@@ -135,10 +131,6 @@ namespace AreaCapture.Editor
                     string jsonPath = Path.Combine(settings.OutputDirectory, settings.MetadataFilename);
                     SaveMetadataAsJson(metadata, jsonPath);
 
-                    if (settings.AutoImportAssets)
-                    {
-                        AssetDatabase.Refresh();
-                    }
                     Debug.Log($"Export complete! Saved to: {settings.OutputDirectory}");
                     onComplete?.Invoke(true);
                     return;
