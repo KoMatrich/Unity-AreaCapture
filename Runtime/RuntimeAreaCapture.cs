@@ -28,7 +28,18 @@ namespace AreaCapture.Runtime
             cameraHolder.hideFlags = HideFlags.HideAndDontSave;
             persistentCamera = cameraHolder.AddComponent<Camera>();
             persistentCamera.enabled = false; // We use manual Render()
+            persistentCamera.useOcclusionCulling = false; // Ignore occlusion mapping of objects
+            TryAddUrpCameraData(cameraHolder);
             return persistentCamera;
+        }
+
+        private static void TryAddUrpCameraData(GameObject go)
+        {
+            const string typeName =
+                "UnityEngine.Rendering.Universal.UniversalAdditionalCameraData, Unity.RenderPipelines.Universal.Runtime";
+            var t = System.Type.GetType(typeName);
+            if (t != null && go.GetComponent(t) == null)
+                go.AddComponent(t);
         }
 
         public void Cleanup()
@@ -123,8 +134,6 @@ namespace AreaCapture.Runtime
             // Strict Clipping: show only stuff inside the box depth
             if (captureZone.UseStrictClipping)
             {
-                cam.nearClipPlane = 10f; 
-                
                 float depth;
                 switch (axis)
                 {
@@ -134,7 +143,8 @@ namespace AreaCapture.Runtime
                     case CaptureAxis.NegativeY: depth = size.y; break;
                     default: depth = size.z; break;
                 }
-                cam.farClipPlane = 10f + depth;
+                cam.nearClipPlane = 10f - 0.01f;
+                cam.farClipPlane = 10f + depth + 0.01f;
             }
             else
             {
@@ -159,7 +169,12 @@ namespace AreaCapture.Runtime
             
             RenderTexture rt = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
             cam.targetTexture = rt;
+
+            // Get best models for render
+            float savedLodBias = QualitySettings.lodBias;
+            QualitySettings.lodBias = float.MaxValue;
             cam.Render();
+            QualitySettings.lodBias = savedLodBias;
 
             RenderTexture.active = rt;
             // Always use RGBA32 to ensure alpha consistency
